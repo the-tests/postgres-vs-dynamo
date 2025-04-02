@@ -63,7 +63,7 @@ services:
   #     - db-perf-check
 
   dynamodb:
-    # command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ."
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ."
     image: "amazon/dynamodb-local:2.5.4"
     mem_limit: 1G
     cpus: 1
@@ -89,6 +89,7 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=8082
+      - AWS_REGION=us-west-2
       - DYNAMO_ENDPOINT=http://dynamodb:8000
     networks:
       - db-perf-check

@@ -1,0 +1,20 @@
+{
+  "number_of_prefixes": 10000,
+  "number_of_suffixes": 10000,
+  "prefix_name": "some_prefix",
+  "suffix_name": "some_suffix",
+  "separator": "/",
+  "dynamo": {
+    "endpoint_url": "http://localhost:8000",
+    "region_name": "us-west-2",
+    "table_name": "test_table"
+  },
+  "postgres": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "testdb",
+    "user": "admin",
+    "password": "admin1234",
+    "table_name": "test_table"
+  }
+}

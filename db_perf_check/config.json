@@ -1,5 +1,5 @@
 {
-  "number_of_prefixes": 100,
+  "number_of_prefixes": 1000,
   "number_of_suffixes": 1000,
   "prefix_name": "some_prefix",
   "suffix_name": "some_suffix",

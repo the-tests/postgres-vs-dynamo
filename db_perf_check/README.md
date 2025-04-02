@@ -6,7 +6,7 @@ This repository contains a performance comparison between PostgreSQL and DynamoD
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/postgres-vs-dynamo.git
+    git clone git@github.com:the-tests/postgres-vs-dynamo.git
     cd db_perf_check
     ```
 

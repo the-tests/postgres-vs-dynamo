@@ -1,0 +1,102 @@
+name: db-perf-check
+
+services:
+  postgres:
+    image: postgres:16.2-bookworm
+    mem_limit: 1G
+    cpus: 1
+    cpu_shares: 512
+    networks:
+      db-perf-check:
+        aliases:
+          - postgres
+          - postgresql
+    healthcheck:
+      test: ["CMD", "psql", "-tq", "--port", "5432", "--host", "localhost", "--user", "admin", "--db", "testdb", "--command", "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES LIMIT 1;"]
+      interval: 120s
+      timeout: 5s
+      retries: 2
+      start_period: 10s
+    environment:
+      POSTGRES_PASSWORD: admin1234
+      POSTGRES_DB: testdb
+      POSTGRES_USER: admin
+    ports:
+      - "5432:5432"
+
+  # TODO: mongodb is not tested
+  # mongodb:
+  #   image: mongo:8.0.6-noble
+  #   healthcheck:
+  #     test: echo 'db.runCommand({serverStatus:1}).ok' | mongosh admin -u $$MONGO_INITDB_ROOT_USERNAME -p $$MONGO_INITDB_ROOT_PASSWORD --quiet | grep 1
+  #     interval: 120s
+  #     timeout: 5s
+  #     retries: 2
+  #     start_period: 10s
+  #   ports:
+  #     - '27017:27017'
+  #   mem_limit: 1G
+  #   cpu_shares: 512
+  #   cpus: 1
+  #   networks:
+  #     db-perf-check:
+  #       aliases:
+  #         - mongo
+  #         - mongodb
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: admin
+  #     MONGO_INITDB_ROOT_PASSWORD: admin1234
+
+  # mongo-express:
+  #   depends_on:
+  #     mongodb:
+  #       condition: service_healthy
+  #   image: mongo-express:latest
+  #   ports:
+  #     - 8081:8081
+  #   environment:
+  #     ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+  #     ME_CONFIG_MONGODB_ADMINPASSWORD: admin1234
+  #     ME_CONFIG_MONGODB_URL: mongodb://admin:admin1234@mongodb:27017/
+  #     ME_CONFIG_BASICAUTH: false
+  #   networks:
+  #     - db-perf-check
+
+  dynamodb:
+    # command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ."
+    image: "amazon/dynamodb-local:2.5.4"
+    mem_limit: 1G
+    cpus: 1
+    cpu_shares: 512
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000 2>/dev/null; if [ $$? -eq 22 ]; then exit 0; else exit 1; fi"]
+      interval: 120s
+      timeout: 5s
+      retries: 2
+      start_period: 10s
+    ports:
+      - "8000:8000"
+    networks:
+      db-perf-check:
+        aliases:
+          - dynamodb
+
+  dynamodb-admin:
+    image: "aaronshaf/dynamodb-admin:5.1.3"
+    cpu_shares: 128
+    ports:
+      - "8082:8082"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8082
+      - DYNAMO_ENDPOINT=http://dynamodb:8000
+    networks:
+      - db-perf-check
+
+networks:
+  db-perf-check:
+    name: db-perf-check
+    ipam:
+      driver: default
+      config:
+        - subnet: "10.0.11.32/28"

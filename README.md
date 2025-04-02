@@ -1,1 +1,1 @@
-# Check (me)[https://github.com/the-tests/postgres-vs-dynamo/blob/develop/db_perf_check/README.md]
+# Check [me](https://github.com/the-tests/postgres-vs-dynamo/blob/develop/db_perf_check/README.md)

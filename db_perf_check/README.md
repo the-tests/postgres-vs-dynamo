@@ -31,5 +31,9 @@ This repository contains a performance comparison between PostgreSQL and DynamoD
 
 5. Run benchmarks
     ```bash
-    # TODO
+    # simply select a single element
+    # postgres
+    python src/db_perf_check/get_data.py postgres
+    # dynamodb
+    python src/db_perf_check/get_data.py dynamo
     ```

@@ -1,6 +1,6 @@
 {
-  "number_of_prefixes": 10000,
-  "number_of_suffixes": 10000,
+  "number_of_prefixes": 100,
+  "number_of_suffixes": 1000,
   "prefix_name": "some_prefix",
   "suffix_name": "some_suffix",
   "separator": "/",

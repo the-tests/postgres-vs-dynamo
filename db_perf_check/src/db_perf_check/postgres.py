@@ -33,3 +33,11 @@ async def data_creator(conn, table_name: str, key:str, data: str) -> None:
         key,
         data,
     )
+
+
+async def simple_select(conn, table_name: str, key: str) -> dict:  
+    result = await conn.fetchrow(
+        f"SELECT pk, data FROM {table_name} WHERE pk = $1",
+        key,
+    )
+    return result

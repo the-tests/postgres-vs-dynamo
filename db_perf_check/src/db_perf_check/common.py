@@ -1,5 +1,6 @@
 from random import randint, shuffle
 from time import time
+from json import load
 
 
 def get_key_elements(name: str, single: bool, num_of_elements: int = 10000) -> str | list:
@@ -39,3 +40,8 @@ def generate_value(
             for pref, suff in rels
         ]
     }
+
+
+def get_config():
+    with open('config.json', 'r') as f:
+        return load(f)

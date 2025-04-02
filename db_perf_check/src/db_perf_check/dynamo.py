@@ -1,5 +1,6 @@
 import aioboto3
 from botocore.client import Config as BotoConfig
+from boto3.dynamodb.conditions import Key
 
 
 async def get_dynamo_resource(endpoint_url: str, region_name: str):
@@ -57,3 +58,11 @@ async def data_creator(
         ReturnItemCollectionMetrics='SIZE',
         ReturnValuesOnConditionCheckFailure='NONE'
     )
+
+
+async def simple_select(table: str, key: str) -> dict:
+    result = await table.query(
+                KeyConditionExpression=Key('pk').eq(key),
+                ReturnConsumedCapacity='NONE',
+            )
+    return result['Items'][0]

@@ -2,11 +2,12 @@ import uvloop
 
 from sys import argv
 from typing import Iterator, Callable
-from json import load, dumps
+from json import dumps
 
 from db_perf_check.common import (
     get_key_elements,
     generate_value,
+    get_config,
 )
 from db_perf_check.dynamo import (
     get_dynamo_resource,
@@ -19,12 +20,6 @@ from db_perf_check.postgres import (
     data_creator as postgres_creator
 )
 from db_perf_check.helpers import Timer
-
-
-def get_config():
-    with open('config.json', 'r') as f:
-        return load(f)
-
 
 CONFIG = get_config()
 

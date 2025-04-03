@@ -21,10 +21,10 @@ async def create_table(conn, table_name):
             );
         """)
     except asyncpg.exceptions.DuplicateTableError:
-        print(f"Table {table_name} already exists.")
+        print(f'Table {table_name} already exists.')
 
 
-async def data_creator(conn, table_name: str, key:str, data: str) -> None:
+async def data_creator(conn, table_name: str, key: str, data: str) -> None:
     await conn.execute(
         f"""INSERT INTO {table_name} (pk, data) VALUES ($1, $2)
         ON CONFLICT (pk)
@@ -35,9 +35,17 @@ async def data_creator(conn, table_name: str, key:str, data: str) -> None:
     )
 
 
-async def simple_select(conn, table_name: str, key: str) -> dict:  
+async def simple_select(conn, table_name: str, key: str) -> dict:
     result = await conn.fetchrow(
-        f"SELECT pk, data FROM {table_name} WHERE pk = $1",
+        f'SELECT pk, data FROM {table_name} WHERE pk = $1',
         key,
     )
     return result
+
+
+async def update(conn, table_name: str, key: str, value: str) -> dict:
+    await conn.execute(
+        f'UPDATE {table_name} SET data = $2 WHERE pk = $1',
+        key,
+        value,
+    )

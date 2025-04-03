@@ -39,7 +39,7 @@ async def get_dynamo_table(resource, table_name: str):
             # }]
         })
     except resource.meta.client.exceptions.ResourceInUseException:
-        print('table already exists')
+        pass
     return await resource.Table(table_name)
 
 

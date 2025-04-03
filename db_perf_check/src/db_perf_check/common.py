@@ -7,10 +7,10 @@ def get_key_elements(name: str, single: bool, num_of_elements: int = 10000) -> s
     from_ = 1
     to_ = num_of_elements
     if single:
-        return f'{name}{randint(from_, to_) :05d}'
+        return f'{name}{randint(from_, to_) :08d}'
     else:
         lst = [
-            f'{name}{i :05d}'
+            f'{name}{i :08d}'
             for i in range(from_, to_ + 1)
         ]
         shuffle(lst)

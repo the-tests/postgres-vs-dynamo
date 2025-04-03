@@ -60,10 +60,7 @@ async def create_data(connection, create_func: Callable, table_name: str = None)
 
 async def main(db_type):
     if db_type == 'dynamo':
-        resource = await get_dynamo_resource(
-            endpoint_url=CONFIG['dynamo']['endpoint_url'],
-            region_name=CONFIG['dynamo']['region_name'],
-        )
+        resource = await get_dynamo_resource(**CONFIG['dynamo']['connection_info'])
         try:
 
             table = await get_dynamo_table(
@@ -74,13 +71,7 @@ async def main(db_type):
         finally:
             await resource.__aexit__(None, None, None)
     elif db_type == 'postgres':
-        conn = await get_connection(
-            user=CONFIG['postgres']['user'],
-            password=CONFIG['postgres']['password'],
-            database=CONFIG['postgres']['database'],
-            host=CONFIG['postgres']['host'],
-            port=CONFIG['postgres']['port'],
-        )
+        conn = await get_connection(**CONFIG['postgres']['connection_info'])
         try:
             await create_table(
                 conn,

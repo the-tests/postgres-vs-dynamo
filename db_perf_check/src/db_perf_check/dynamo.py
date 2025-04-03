@@ -3,7 +3,12 @@ from botocore.client import Config as BotoConfig
 from boto3.dynamodb.conditions import Key
 
 
-async def get_dynamo_resource(endpoint_url: str, region_name: str):
+async def get_dynamo_resource(
+    endpoint_url: str = None,
+    region_name: str = 'ap-northeast-1',
+    aws_access_key_id: str = 'dummy',
+    aws_secret_access_key: str = 'dummy',
+) -> aioboto3.Session:
     session = aioboto3.Session()
     return await session.resource(
         'dynamodb',
@@ -15,8 +20,8 @@ async def get_dynamo_resource(endpoint_url: str, region_name: str):
         ),
         endpoint_url=endpoint_url,
         region_name=region_name,
-        aws_access_key_id='dummy',
-        aws_secret_access_key='dummy',
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
     ).__aenter__()
 
 

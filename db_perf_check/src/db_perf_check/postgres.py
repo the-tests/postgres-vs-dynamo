@@ -43,6 +43,14 @@ async def simple_select(conn, table_name: str, key: str) -> dict:
     return result
 
 
+async def select_multiple(conn, table_name: str, keys: list[str]) -> dict:
+    result = await conn.fetch(
+        f'SELECT pk, data FROM {table_name} WHERE pk = any($1::text[])',
+        keys,
+    )
+    return result
+
+
 async def update(conn, table_name: str, key: str, value: str) -> dict:
     await conn.execute(
         f'UPDATE {table_name} SET data = $2 WHERE pk = $1',

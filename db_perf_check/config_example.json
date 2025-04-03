@@ -11,11 +11,13 @@
     "table_name": "test_table"
   },
   "postgres": {
-    "host": "localhost",
-    "port": 5432,
-    "database": "testdb",
-    "user": "admin",
-    "password": "admin1234",
+    "connection_info": {
+      "host": "localhost",
+      "port": 5432,
+      "database": "testdb",
+      "user": "admin",
+      "password": "admin1234"
+    },
     "table_name": "test_table"
   }
 }

@@ -7,7 +7,7 @@ This repository contains a performance comparison between PostgreSQL and DynamoD
 1. Clone the repository:
     ```bash
     git clone git@github.com:the-tests/postgres-vs-dynamo.git
-    cd db_perf_check
+    cd postgres-vs-dynamo
     ```
 
 2. Run docker
@@ -18,10 +18,16 @@ This repository contains a performance comparison between PostgreSQL and DynamoD
 
 3. Install dependencies:
     ```bash
+    cd db_perf_check
     poetry install
     ```
 
-4. Generate data:
+4. Create config
+    ```bash
+    cp -p config_example.json config.json
+    ```
+
+5. Generate data:
     ```bash
     # dynamodb
     python src/db_perf_check/create_data.py dynamo
@@ -29,7 +35,7 @@ This repository contains a performance comparison between PostgreSQL and DynamoD
     python src/db_perf_check/create_data.py postgres
     ```
 
-5. Run benchmarks
+6. Run benchmarks
     ```bash
     # simply select a single element
     # postgres
@@ -43,7 +49,7 @@ This repository contains a performance comparison between PostgreSQL and DynamoD
     python src/db_perf_check/update_data.py dynamo
     ```
 
-6. Run benchmarks endless in multiple processes
+7. Run benchmarks endless in multiple processes
     ```bash
     # to get data
     ./run.sh get [postgres, dynamo] [N - num of procs]

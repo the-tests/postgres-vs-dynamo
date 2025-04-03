@@ -1,5 +1,6 @@
 import uvloop
 
+from json import loads
 from sys import argv
 
 from db_perf_check.common import get_key_elements, get_config
@@ -7,14 +8,21 @@ from db_perf_check.dynamo import (
     get_dynamo_resource,
     get_dynamo_table,
     simple_select as dynamo_select,
+    # select_multiple as dynamo_select_multiple,
 )
-from db_perf_check.postgres import get_connection, simple_select as postgres_select
+from db_perf_check.postgres import (
+    get_connection,
+    simple_select as postgres_select,
+    select_multiple as postgres_select_multiple,
+)
 from db_perf_check.helpers import Timer
 
 CONFIG = get_config()
 
 
 async def main(db_type: str, silent: bool = False) -> None:
+    elapsed_simple = 0
+    elapsed_multiple = 0
     pref = get_key_elements(
         CONFIG['prefix_name'],
         True,
@@ -27,11 +35,7 @@ async def main(db_type: str, silent: bool = False) -> None:
     )
 
     if db_type == 'dynamo':
-        t = None
-        resource = await get_dynamo_resource(
-            endpoint_url=CONFIG['dynamo']['endpoint_url'],
-            region_name=CONFIG['dynamo']['region_name'],
-        )
+        resource = await get_dynamo_resource(**CONFIG['dynamo']['connection_info'])
         try:
             table = await get_dynamo_table(
                 resource,
@@ -39,19 +43,25 @@ async def main(db_type: str, silent: bool = False) -> None:
             )
             with Timer() as t:
                 result = await dynamo_select(table, f'{pref}{CONFIG["separator"]}{suff}')
+            elapsed_simple = t.elapsed
+            related_elements = loads(result['data'])['related_elements']
             if not silent:
-                print('RESULT:', result)
+                print('RESULT (single):', result)
                 print(f'\nElapsed time: {t.elapsed:.4f} seconds\n')
+            # TODO: it is not possible to get multiple keys in one query
+            # with Timer() as t:
+            #     result = await dynamo_select_multiple(
+            #         table,
+            #         keys=related_elements,
+            #     )
+            # elapsed_multiple = t.elapsed
+            # if not silent:
+            #     print('RESULT:', result)
+            #     print(f'\nElapsed multiple time: {t.elapsed:.4f} seconds\n')
         finally:
             await resource.__aexit__(None, None, None)
     elif db_type == 'postgres':
-        conn = await get_connection(
-            user=CONFIG['postgres']['user'],
-            password=CONFIG['postgres']['password'],
-            database=CONFIG['postgres']['database'],
-            host=CONFIG['postgres']['host'],
-            port=CONFIG['postgres']['port'],
-        )
+        conn = await get_connection(**CONFIG['postgres']['connection_info'])
         try:
             with Timer() as t:
                 result = await postgres_select(
@@ -59,15 +69,27 @@ async def main(db_type: str, silent: bool = False) -> None:
                     table_name=CONFIG['postgres']['table_name'],
                     key=f'{pref}{CONFIG["separator"]}{suff}',
                 )
+            related_elements = loads(result['data'])['related_elements']
+            elapsed_simple = t.elapsed
             if not silent:
-                print('RESULT:', result)
+                print('RESULT (single):', result)
+                print(f'\nElapsed time: {t.elapsed:.4f} seconds\n')
+            with Timer() as t:
+                result = await postgres_select_multiple(
+                    conn,
+                    table_name=CONFIG['postgres']['table_name'],
+                    keys=related_elements,
+                )
+            elapsed_multiple = t.elapsed
+            if not silent:
+                print('RESULT (multiple):', '\n'.join([str(x) for x in result]))
                 print(f'\nElapsed time: {t.elapsed:.4f} seconds\n')
         finally:
             await conn.close()
     else:
         print(f'Unknown db_type: {db_type}')
         exit(1)
-    return t.elapsed if t else 0
+    return elapsed_simple, elapsed_multiple
 
 
 if __name__ == '__main__':
@@ -86,12 +108,24 @@ if __name__ == '__main__':
         if forever:
             while True:
                 if len(elapsed) > 500:
-                    elapsed = [sum(elapsed) / len(elapsed)]
+                    elapsed = [
+                        (
+                            sum([x[0] for x in elapsed]) / len(elapsed),
+                            sum([x[1] for x in elapsed]) / len(elapsed)
+                        )
+                    ]
                 elapsed.append(asyncio.run(main(db_type, True)))
         else:
             asyncio.run(main(db_type))
     except KeyboardInterrupt:
         print('Interrupted by user')
         if elapsed:
-            print(f'\nMean elapsed time for selects: {sum(elapsed) / len(elapsed):.4f} seconds')
+            print(
+                f'\nMean elapsed time for simple selects: {sum([x[0] for x in elapsed]) / len(elapsed):.4f}'
+                ' seconds'
+            )
+            print(
+                f'Mean elapsed time for complex selects: {sum([x[1] for x in elapsed]) / len(elapsed):.4f}'
+                ' seconds'
+            )
         exit(2)

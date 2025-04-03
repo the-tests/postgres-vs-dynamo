@@ -1,12 +1,13 @@
 {
-  "number_of_prefixes": 1000,
-  "number_of_suffixes": 1000,
-  "prefix_name": "some_prefix",
-  "suffix_name": "some_suffix",
+  "number_of_prefixes": 100,
+  "number_of_suffixes": 10000,
+  "prefix_name": "some_custom_prefix",
+  "suffix_name": "some_custom_suffix",
   "separator": "/",
   "dynamo": {
-    "endpoint_url": "http://localhost:8000",
-    "region_name": "us-west-2",
+    "connection_info": {
+      "endpoint_url": "http://localhost:8000"
+    },
     "table_name": "test_table"
   },
   "postgres": {
